@@ -1,0 +1,99 @@
+﻿<Window x:Name="window" x:Class="Exif.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Exif"
+        mc:Ignorable="d"
+        Title="EXIF Copy &amp; Move"
+        Height="350" Width="440"
+        AllowDrop="True">
+    <Grid DataContext="{Binding ElementName=window}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <ToolBarTray>
+            <ToolBar
+                IsEnabled="{Binding IsIdle}"
+                Width="{Binding ActualWidth,
+                    RelativeSource={RelativeSource FindAncestor,
+                    AncestorType={x:Type ToolBarTray}}}"
+                ToolBarTray.IsLocked="True">
+                <Button Click="OnStartCopy">
+                    <AccessText>_Copy</AccessText>
+                </Button>
+                <Button Click="OnStartMove">
+                    <AccessText>Mo_ve</AccessText>
+                </Button>
+                <Button Click="OnStartDryRun">
+                    <AccessText>Dry-_run</AccessText>
+                </Button>
+                <Separator/>
+                <Button Click="OnClear">
+                    <AccessText>Cle_ar</AccessText>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+
+        <Grid Grid.Row="1" Background="#FFEEF5FD">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="_Destination:" Target="{Binding ElementName=_Destination}"/>
+            <TextBox Name="_Destination" Text="{Binding Destination, UpdateSourceTrigger=PropertyChanged}" Margin="4" Grid.Column="1"/>
+        </Grid>
+
+        <DataGrid x:Name="_List"
+                  ItemsSource="{Binding Files}"
+                  AutoGenerateColumns="False"
+                  HeadersVisibility="Column"
+                  Grid.Row="2">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel VerticalAlignment="Center">
+                                <fa:ImageAwesome x:Name="Started" Icon="Spinner" Spin="True" SpinDuration="2" Width="12" Height="12" Visibility="Collapsed" />
+                                <fa:FontAwesome x:Name="Completed" Icon="CheckSquare" Visibility="Collapsed" />
+                                <fa:FontAwesome x:Name="Skipped" Icon="Question" Foreground="Red" Visibility="Collapsed" />
+                                <fa:FontAwesome x:Name="Error" Icon="ExclamationTriangle" Foreground="Red" Visibility="Collapsed" />
+                            </StackPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding State}" Value="Started">
+                                    <Setter Property="Visibility" Value="Visible" TargetName="Started"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding State}" Value="Completed">
+                                    <Setter Property="Visibility" Value="Visible" TargetName="Completed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding State}" Value="Skipped">
+                                    <Setter Property="Visibility" Value="Visible" TargetName="Skipped"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding State}" Value="Error">
+                                    <Setter Property="Visibility" Value="Visible" TargetName="Error"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Binding="{Binding Name}" Header="Name"/>
+                <DataGridTextColumn Binding="{Binding OriginalDateTime}" Header="Date taken"/>
+                <DataGridTextColumn Binding="{Binding EquipModel}" Header="Model"/>
+                <DataGridTextColumn Binding="{Binding StatusText}" Header="Status"/>
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsValid}" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+    </Grid>
+</Window>
