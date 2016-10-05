@@ -100,7 +100,7 @@ namespace Exif {
             return ExifDateTimeValueOrDefault(img, ExifTag.ExifDTOrig);
         }
 
-        public static string ExifEquifModel(this Image image) {
+        public static string ExifEquipModel(this Image image) {
             return ExifStringValue(image, ExifTag.EquipModel);
         }
 

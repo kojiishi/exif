@@ -60,7 +60,7 @@ namespace Exif {
             // and set in UI thread.
             this.Dispatcher.BeginInvoke(
                 new Action<DateTime, string>(this.SetExifProperties),
-                this.ExifFile.OriginalDateTime,
+                this.ExifFile.OriginalDateTimeOrFileTime,
                 this.ExifFile.EquipModel);
         }
 

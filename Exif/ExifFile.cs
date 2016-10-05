@@ -29,11 +29,8 @@ namespace Exif {
         public string Name { get { return Path.GetFileNameWithoutExtension(this.File.Name); } }
         public FileInfo ThumbnailFile { get; private set; }
 
-        public DateTime? DateTimeFromFileName {
-            get { return ParseDateTime(this.File.Name); }
-        }
-
         static readonly Regex dateTimePattern = new Regex(@"\d{8}_\d{6}", RegexOptions.Compiled);
+        const string dateTimeFormat = "yyyyMMdd_HHmmss";
 
         static DateTime? ParseDateTime(string name) {
             name = Path.GetFileNameWithoutExtension(name);
@@ -41,7 +38,7 @@ namespace Exif {
             if (name.Length >= 15) {
                 foreach (Match match in dateTimePattern.Matches(name)) {
                     if (DateTime.TryParseExact(match.Value,
-                        "yyyyMMdd_HHmmss",
+                        dateTimeFormat,
                         CultureInfo.InvariantCulture,
                         DateTimeStyles.AssumeLocal,
                         out value)) {
@@ -52,17 +49,35 @@ namespace Exif {
             return null;
         }
 
+        static string EmbedDateTimeToFileName(string name, DateTime time)
+        {
+            var ext = Path.GetExtension(name);
+            name = Path.GetFileNameWithoutExtension(name);
+            return string.Concat(name, "_", time.ToString(dateTimeFormat), ext);
+        }
+
+        public DateTime? DateTimeFromFileName
+        {
+            get { return ParseDateTime(this.File.Name); }
+        }
+
+        public DateTime DateTimeFromFileTime
+        {
+            get { return Min(this.File.CreationTime, this.File.LastWriteTime); }
+        }
+
         public DateTime? OriginalDateTime {
-            get {
-                return this.ExifOriginalDateTime ??
-                    this.DateTimeFromFileName ??
-                    Min(this.File.CreationTime, this.File.LastWriteTime);
-            }
+            get { return this.ExifOriginalDateTime ?? this.DateTimeFromFileName; }
+        }
+
+        public DateTime OriginalDateTimeOrFileTime
+        {
+            get { return this.OriginalDateTime ?? this.DateTimeFromFileTime; }
         }
 
         public string FormatString(string format) {
             format = format.Replace("{date:", "{0:");
-            return string.Format(format, this.OriginalDateTime);
+            return string.Format(format, this.OriginalDateTimeOrFileTime);
         }
 
         static DateTime Min(DateTime d1, DateTime d2) {

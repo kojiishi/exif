@@ -40,7 +40,7 @@ namespace Exif {
             }
 
             source.AsParallel()
-                .WithDegreeOfParallelism(16)
+                .WithDegreeOfParallelism(4)
                 .Select(item => { this.RunActions(item); return true; })
                 .ToArray();
         }

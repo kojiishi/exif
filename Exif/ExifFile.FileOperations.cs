@@ -24,12 +24,15 @@ namespace Exif {
             if (!DryRun && !destinationDirectory.Exists)
                 destinationDirectory.Create();
 
+            var destinationName = this.File.Name;
+            if (this.OriginalDateTime == null)
+                destinationName = ExifFile.EmbedDateTimeToFileName(destinationName, this.DateTimeFromFileTime);
+
             // Image must be disposed to unlock the source file.
             this.DisposeImages();
 
             var operation = MoveCopyOperation.GetOperation(options);
-
-            var destination = new FileInfo(Path.Combine(destinationDirectory.FullName, this.File.Name));
+            var destination = new FileInfo(Path.Combine(destinationDirectory.FullName, destinationName));
             this.File = this.MoveFileTo(this.File, destination, operation);
 
             if (this.ThumbnailFile != null) {
